@@ -97,6 +97,8 @@ export const computeCards = (
     ? `${entityCardOptions.title} `.toLowerCase()
     : undefined;
 
+  const footerEntities: { entity: string; name: string }[] = [];
+
   for (const [entityId, stateObj] of states) {
     const domain = computeDomain(entityId);
 
@@ -143,6 +145,11 @@ export const computeCards = (
         show_forecast: false,
       };
       cards.push(cardConfig);
+    } else if (domain === "scene" || domain === "script") {
+      footerEntities.push({
+        entity: entityId,
+        name: stateObj ? computeStateName(stateObj) : entityId,
+      });
     } else if (
       domain === "sensor" &&
       stateObj?.attributes.device_class === SENSOR_DEVICE_CLASS_BATTERY
@@ -174,6 +181,12 @@ export const computeCards = (
       entities,
       ...entityCardOptions,
     });
+    if (footerEntities.length > 0) {
+      cards[0].footer = {
+        type: "buttons",
+        entities: footerEntities,
+      };
+    }
   }
 
   return cards;
